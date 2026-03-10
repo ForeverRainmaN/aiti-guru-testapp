@@ -1,29 +1,18 @@
 import { login } from "@/features/auth/api"
+import { useHandleSaveToken } from "@/features/auth/hooks"
 import { AuthError, loginSchema, NetworkError, type LoginCredentials } from "@/features/auth/model"
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Checkbox,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Label
-} from "@/shared/ui"
+import { LoginFormFields } from "@/features/auth/ui/login-form-fields"
+import { Card } from "@/shared/ui"
+import { Logo } from "@/shared/ui/logo"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { useHandleSaveToken } from "../hooks"
 
 export function LoginForm() {
   const handleSaveToken = useHandleSaveToken()
+  const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm<LoginCredentials>({
     resolver: zodResolver(loginSchema),
@@ -49,70 +38,23 @@ export function LoginForm() {
     }
   })
 
-  const onSubmit = (values: LoginCredentials) => {
-    mutation.mutate(values)
-  }
-
   return (
-    <Card className="shadow-card w-[527px] rounded-[40px] p-1.5">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Добро пожаловать!</CardTitle>
-        <p className="text-muted-foreground text-sm">Пожалуйста, авторизируйтесь!</p>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-8">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Логин</FormLabel>
-                  <FormControl>
-                    <Input placeholder="test" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Пароль</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="***********" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="remember"
-                checked={form.watch("remember")}
-                onCheckedChange={(checked) => form.setValue("remember", checked === true)}
-              />
-              <Label htmlFor="remember" className="text-sm font-normal">
-                Запомнить данные
-              </Label>
-            </div>
-            {form.formState.errors.root && (
-              <p className="text-sm text-red-500">{form.formState.errors.root.message}</p>
-            )}
-            <Button type="submit" disabled={mutation.isPending} className="w-full">
-              {mutation.isPending ? "Вход..." : "Войти"}
-            </Button>
-          </form>
-        </Form>
-        <p className="text-muted-foreground mt-4 text-center text-sm">
-          Нет аккаунта?{" "}
-          <a href="#" className="text-primary underline">
-            Создать
-          </a>
-        </p>
-      </CardContent>
+    <Card className="border-gray-border mx-auto flex w-full max-w-md flex-col gap-8 rounded-3xl border bg-gradient-to-b from-black/5 to-transparent p-8 shadow-lg">
+      <div className="flex justify-center">
+        <Logo />
+      </div>
+
+      <div className="text-center">
+        <h1 className="text-4xl font-semibold tracking-tight text-gray-900">Добро пожаловать!</h1>
+        <p className="text-gray-soft mt-2 text-lg">Пожалуйста, авторизируйтесь</p>
+      </div>
+
+      <LoginFormFields
+        form={form}
+        mutation={mutation}
+        showPassword={showPassword}
+        setShowPassword={setShowPassword}
+      />
     </Card>
   )
 }
