@@ -13,8 +13,8 @@
   "iconLibrary": "lucide",
   "rtl": false,
   "aliases": {
-    "components": "@/shared/ui",
-    "utils": "@/shared/lib/utils"
+    "components": "@/shared",
+    "utils": "@/shared/lib"
   },
   "menuColor": "default",
   "menuAccent": "subtle",
