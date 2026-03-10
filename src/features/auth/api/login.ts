@@ -1,10 +1,10 @@
-import { validateWithZod } from "@/shared"
-import axios, { AxiosError } from "axios"
-import * as E from "fp-ts/Either"
-import { pipe } from "fp-ts/function"
-import * as TE from "fp-ts/TaskEither"
+import axios from "axios"
+import * as O from "fp-ts/Option"
+
+import { createApiRequest, toPromise, type ErrorMapper } from "@/shared/lib"
+
 import { AuthResponseSchema, type AuthResponse } from "../model/schema"
-import { AuthError, NetworkError, ValidationError, type LoginCredentials } from "../model/types"
+import { AuthError, type LoginCredentials } from "../model/types"
 
 const loginRequest = (credentials: LoginCredentials): Promise<unknown> =>
   axios
@@ -19,35 +19,18 @@ const loginRequest = (credentials: LoginCredentials): Promise<unknown> =>
     )
     .then((res) => res.data)
 
-const loginTask = (credentials: LoginCredentials): TE.TaskEither<Error, AuthResponse> =>
-  pipe(
-    TE.tryCatch(
-      () => loginRequest(credentials),
-      (error) => {
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError
-          if (axiosError.response?.status === 400 || axiosError.response?.status === 401) {
-            return new AuthError("Incorrect login or password")
-          }
-          return new NetworkError(axiosError.message)
-        }
-        return new Error("Unknown error")
-      }
-    ),
-    TE.chain((data) =>
-      pipe(
-        validateWithZod(AuthResponseSchema)(data),
-        E.mapLeft((error) => new ValidationError(error.message)),
-        TE.fromEither
-      )
-    )
-  )
+const mapLoginError: ErrorMapper = (error) => {
+  if (
+    axios.isAxiosError(error) &&
+    (error.response?.status === 400 || error.response?.status === 401)
+  ) {
+    return O.some(new AuthError("Incorrect login or password"))
+  }
+  return O.none
+}
+
+const loginTask = (credentials: LoginCredentials) =>
+  createApiRequest(loginRequest(credentials), AuthResponseSchema, mapLoginError)
 
 export const login = (credentials: LoginCredentials): Promise<AuthResponse> =>
-  loginTask(credentials)().then((either) => {
-    if (either._tag === "Right") {
-      return either.right
-    } else {
-      throw either.left
-    }
-  })
+  toPromise(loginTask(credentials))

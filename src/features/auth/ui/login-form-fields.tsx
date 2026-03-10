@@ -1,6 +1,7 @@
-// LoginFormFields.tsx
-import { type LoginCredentials } from "@/features/auth/model"
-import { type AuthResponse } from "@/features/auth/model/schema"
+import { type UseMutationResult } from "@tanstack/react-query"
+import { Eye, EyeOff, Lock, Mail } from "lucide-react"
+import { type UseFormReturn } from "react-hook-form"
+
 import {
   Button,
   Checkbox,
@@ -12,9 +13,8 @@ import {
   Input,
   Label
 } from "@/shared/ui"
-import { type UseMutationResult } from "@tanstack/react-query"
-import { Eye, EyeOff, Lock, Mail } from "lucide-react"
-import { type UseFormReturn } from "react-hook-form"
+
+import { type AuthResponse, type LoginCredentials } from "../model"
 
 type LoginFormFieldsProps = {
   form: UseFormReturn<LoginCredentials>

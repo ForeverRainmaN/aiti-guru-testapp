@@ -1,14 +1,17 @@
-import { login } from "@/features/auth/api"
-import { useHandleSaveToken } from "@/features/auth/hooks"
-import { AuthError, loginSchema, NetworkError, type LoginCredentials } from "@/features/auth/model"
-import { LoginFormFields } from "@/features/auth/ui/login-form-fields"
-import { Card } from "@/shared/ui"
-import { Logo } from "@/shared/ui/logo"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+
+import { NetworkError } from "@/shared/lib/api-factory"
+import { Card } from "@/shared/ui"
+import { Logo } from "@/shared/ui/logo"
+
+import { login } from "../api"
+import { useHandleSaveToken } from "../hooks"
+import { AuthError, loginSchema, type LoginCredentials } from "../model"
+import { LoginFormFields } from "./login-form-fields"
 
 export function LoginForm() {
   const handleSaveToken = useHandleSaveToken()
