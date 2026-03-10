@@ -1,15 +1,12 @@
 import { LoginPage } from "@/pages/login-page"
-import { createRoute, redirect } from "@tanstack/react-router"
-import { Route as rootRoute } from "./__root"
+import { createFileRoute, redirect } from "@tanstack/react-router"
+import { isSome } from "fp-ts/Option"
 
-export const Route = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/login",
+export const Route = createFileRoute("/login")({
   component: LoginPage,
   beforeLoad: ({ context }) => {
-    if (context.auth.token) {
-      // TODO: Fix type issue
-      throw redirect({ to: "/" })
+    if (isSome(context.auth.token)) {
+      throw redirect({ to: "/products" })
     }
   }
 })

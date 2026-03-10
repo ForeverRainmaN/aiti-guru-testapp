@@ -1,14 +1,11 @@
-import { createRoute, redirect } from "@tanstack/react-router"
-import { Route as rootRoute } from "./__root"
 import { ProductsPage } from "@/pages/products-page"
+import { createFileRoute, redirect } from "@tanstack/react-router"
+import { isNone } from "fp-ts/Option"
 
-export const Route = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
+export const Route = createFileRoute("/products")({
   component: ProductsPage,
   beforeLoad: ({ context }) => {
-    if (!context.auth.token) {
-      // TODO: Fix type issue
+    if (isNone(context.auth.token)) {
       throw redirect({ to: "/login" })
     }
   }

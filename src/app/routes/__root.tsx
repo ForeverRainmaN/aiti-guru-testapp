@@ -1,7 +1,14 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router"
+import { createRootRouteWithContext, Outlet } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/router-devtools"
+import * as O from "fp-ts/Option"
 
-export const Route = createRootRoute({
+type RouterContext = {
+  auth: {
+    token: O.Option<string>
+  }
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <>
       <Outlet />

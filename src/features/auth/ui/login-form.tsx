@@ -1,6 +1,5 @@
 import { login } from "@/features/auth/api"
 import { AuthError, loginSchema, NetworkError, type LoginCredentials } from "@/features/auth/model"
-import { saveToken } from "@/features/auth/model/auth-storage"
 import {
   Button,
   Card,
@@ -19,15 +18,13 @@ import {
 } from "@/shared/ui"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { useNavigate } from "@tanstack/react-router"
-import { pipe } from "fp-ts/function"
-import * as T from "fp-ts/Task"
-import * as TE from "fp-ts/TaskEither"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { useHandleSaveToken } from "../hooks"
 
 export function LoginForm() {
-  const navigate = useNavigate()
+  const handleSaveToken = useHandleSaveToken()
+
   const form = useForm<LoginCredentials>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -39,23 +36,7 @@ export function LoginForm() {
 
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: (data, variables) => {
-      pipe(
-        saveToken(data.accessToken, variables.remember),
-        TE.fold(
-          (error) => {
-            toast.error("Не удалось сохранить токен")
-            console.error(error)
-            return T.of(undefined)
-          },
-          () => {
-            toast.success("Вход выполнен успешно")
-            navigate({ to: "/" })
-            return T.of(undefined)
-          }
-        )
-      )()
-    },
+    onSuccess: (data, variables) => handleSaveToken(data.accessToken, variables.remember),
     onError: (error) => {
       if (error instanceof AuthError) {
         toast.error(error.message)
