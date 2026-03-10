@@ -1,88 +1,99 @@
-import { useQuery } from "@tanstack/react-query"
+import { Route } from "@/app/routes/products"
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 import { useDebounce } from "@/shared"
 import { Skeleton } from "@/shared/ui"
 
-import { Route, type ProductsSearch } from "@/app/routes/products"
-import { getProducts } from "@/features/products/api"
-import type { AddProductForm, Product } from "@/features/products/model"
+import { useProducts } from "@/features/products/hooks"
 import { AddProductButton, Pagination, ProductsTable, SearchBar } from "@/features/products/ui"
 import { AddProductModal } from "@/features/products/ui/add-product-modal"
 
 export function ProductsPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+
   const [searchQuery, setSearchQuery] = useState(search.q || "")
-  const debouncedQuery = useDebounce<string>(searchQuery, 500)
+  const debouncedQuery = useDebounce(searchQuery, 500)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-  const [localProducts, setLocalProducts] = useState<Product[]>([])
+  const { sortBy, sortOrder, page = 1 } = search
 
-  const handleAddProduct = (newProduct: AddProductForm) => {
-    const product: Product = {
-      id: Date.now(),
-      title: newProduct.title,
-      price: newProduct.price,
-      brand: newProduct.brand,
-      description: "",
-      discountPercentage: 0,
-      rating: 0,
-      stock: 0,
-      category: "",
-      thumbnail: "",
-      images: []
-    }
-    setLocalProducts((prev) => [product, ...prev])
-  }
+  const limit = 10
+
+  const { products, isLoading, error, total, skip, addProduct } = useProducts({
+    page,
+    limit,
+    ...(debouncedQuery && { q: debouncedQuery }),
+    ...(sortBy && { sortBy }),
+    ...(sortOrder && { sortOrder })
+  })
 
   useEffect(() => {
     navigate({
-      search: (prev: ProductsSearch) => ({ ...prev, q: debouncedQuery || undefined })
+      search: { ...search, q: debouncedQuery || undefined }
     })
-  }, [debouncedQuery, navigate])
+  }, [debouncedQuery, navigate, search])
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["products", debouncedQuery],
-    queryFn: () => getProducts(debouncedQuery)
-  })
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message)
+    }
+  }, [error])
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const handleSort = (column: "price" | "rating") => {
+    const newOrder = sortBy === column && sortOrder === "asc" ? "desc" : "asc"
+    navigate({
+      search: { ...search, sortBy: column, sortOrder: newOrder, page: 1 }
+    })
+  }
 
   if (error) return <div>Ошибка: {error.message}</div>
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Товары</h1>
-        <div className="flex items-center gap-4">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
-          <AddProductButton onClick={() => setIsAddModalOpen(true)} />
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex h-24 items-center justify-between rounded-lg bg-white px-8 shadow-sm">
+          <h1 className="text-3xl font-bold text-gray-900">Товары</h1>
+          <div className="flex items-center gap-4">
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          </div>
         </div>
-      </div>
 
-      {isLoading ? (
-        <div className="space-y-3">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
+        <div className="rounded-lg bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-700">Все позиции</h2>
+            <AddProductButton onClick={() => setIsAddModalOpen(true)} />
+          </div>
+
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : (
+            <ProductsTable data={products} onSort={handleSort} />
+          )}
+
+          {total > 0 && (
+            <Pagination
+              currentPage={page}
+              totalPages={Math.ceil(total / limit)}
+              total={total}
+              skip={skip}
+              limit={limit}
+              onPageChange={(newPage) => navigate({ search: { ...search, page: newPage } })}
+            />
+          )}
         </div>
-      ) : (
-        <ProductsTable data={[...(data?.products ?? []), ...localProducts]} />
-      )}
 
-      {data && (
-        <Pagination
-          currentPage={1}
-          totalPages={Math.ceil(data.total / data.limit)}
-          onPageChange={(page) => console.log("page", page)}
+        <AddProductModal
+          open={isAddModalOpen}
+          onOpenChange={setIsAddModalOpen}
+          onAdd={addProduct}
         />
-      )}
-
-      <AddProductModal
-        open={isAddModalOpen}
-        onOpenChange={setIsAddModalOpen}
-        onAdd={handleAddProduct}
-      />
+      </div>
     </div>
   )
 }

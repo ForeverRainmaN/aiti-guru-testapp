@@ -8,12 +8,12 @@ export const ProductSchema = z.object({
   discountPercentage: z.number(),
   rating: z.number(),
   stock: z.number(),
-  brand: z.string(),
+  brand: z.string().optional(),
   category: z.string(),
   thumbnail: z.string(),
-  images: z.array(z.string())
+  images: z.array(z.string()),
+  sku: z.string().optional()
 })
-
 export type Product = z.infer<typeof ProductSchema>
 
 export const ProductsResponseSchema = z.object({

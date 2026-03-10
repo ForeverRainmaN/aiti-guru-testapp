@@ -1,11 +1,24 @@
-import { Button } from "@/shared/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form"
-import { Input } from "@/shared/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input
+} from "@/shared/ui"
+
+import type { AddProductForm } from "@/features/products/model"
 
 const addProductSchema = z.object({
   title: z.string().min(1, "Название обязательно"),
@@ -13,8 +26,6 @@ const addProductSchema = z.object({
   brand: z.string().min(1, "Вендор обязателен"),
   sku: z.string().optional()
 })
-
-type AddProductForm = z.infer<typeof addProductSchema>
 
 interface AddProductModalProps {
   open: boolean

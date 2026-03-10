@@ -1,7 +1,7 @@
 export { Button } from "./button"
 export * from "./card"
 export { Checkbox } from "./checkbox"
-export { Dialog } from "./dialog"
+export * from "./dialog"
 export * from "./dropdown-menu"
 export * from "./form"
 export { Input } from "./input"

@@ -1,47 +1,65 @@
+import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-interface PaginationProps {
+type PaginationProps = {
   currentPage: number
   totalPages: number
+  total: number
+  skip: number
+  limit: number
   onPageChange: (page: number) => void
 }
-
-export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+export function Pagination({
+  currentPage,
+  totalPages,
+  total,
+  skip,
+  limit,
+  onPageChange
+}: PaginationProps) {
+  const pages = Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1)
+  const from = skip + 1
+  const to = Math.min(skip + limit, total)
   return (
     <div className="mt-6 flex items-center justify-between">
       <p className="text-sm text-gray-500">
-        Показано 1-{totalPages * 10} из {totalPages * 10} (условно)
+        Показано {from}-{to} из {totalPages}
       </p>
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
-          size="sm"
+          size="icon"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="h-10 w-10 p-0"
+          className="h-8 w-8 border-gray-300"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
-        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map((page) => (
+        {pages.map((page) => (
           <Button
             key={page}
             variant={currentPage === page ? "default" : "outline"}
-            size="sm"
+            size="icon"
             onClick={() => onPageChange(page)}
-            className="h-10 w-10 p-0"
+            className={cn(
+              "h-8 w-8 text-sm",
+              currentPage === page
+                ? "bg-primary text-white hover:bg-blue-700"
+                : "border-gray-300 bg-white text-gray-500 hover:bg-gray-100"
+            )}
           >
             {page}
           </Button>
         ))}
         <Button
           variant="outline"
-          size="sm"
+          size="icon"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="h-10 w-10 p-0"
+          className="h-8 w-8 border-gray-300"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
