@@ -23,4 +23,13 @@ export const ProductsResponseSchema = z.object({
   limit: z.number()
 })
 
+export const AddProductSchema = z.object({
+  title: z.string().min(1, "Название обязательно"),
+  price: z.number().positive("Цена должна быть положительной"),
+  brand: z.string().min(1, "Вендор обязателен"),
+  sku: z.string().optional()
+})
+
+export type AddProductForm = z.infer<typeof AddProductSchema>
+
 export type ProductsResponse = z.infer<typeof ProductsResponseSchema>

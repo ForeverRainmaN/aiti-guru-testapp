@@ -7,27 +7,11 @@ import { z } from "zod"
 
 import { validateWithZod } from "./zod-validator"
 
-export class NetworkError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = "NetworkError"
-  }
-}
-
-export class ValidationError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = "ValidationError"
-  }
-}
-
-export type ErrorMapper = (error: unknown) => O.Option<Error>
-
 /**
  * Создаёт TaskEither для API-запроса с валидацией ответа
  * @param requestFn - функция, возвращающая Promise с сырыми данными
  * @param schema - Zod-схема для валидации ответа
- * @param mapError - опциональная функция для преобразования ошибок (если возвращает null, используется стандартная обработка)
+ * @param mapError - опциональная функция для преобразования ошибок, возвращает Option<Error>
  */
 
 export const createApiRequest = <A>(
@@ -43,6 +27,24 @@ export const createApiRequest = <A>(
     TE.chain((data) => validateResponse(data, schema))
   )
 }
+
+// errors
+
+export class NetworkError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "NetworkError"
+  }
+}
+
+export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "ValidationError"
+  }
+}
+
+export type ErrorMapper = (error: unknown) => O.Option<Error>
 
 // helpers
 
@@ -69,9 +71,8 @@ const validateResponse = <A>(
     TE.fromEither
   )
 
-/**
- * Преобразует TaskEither в Promise для использования в React Query
- */
+// Преобразует TaskEither в Promise для использования в React Query
+
 export const toPromise = <T>(task: TE.TaskEither<Error, T>): Promise<T> =>
   task().then(
     E.fold(
