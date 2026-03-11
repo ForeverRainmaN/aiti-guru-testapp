@@ -91,7 +91,7 @@ export function ProductFormModal({
                   <FormControl>
                     <Input
                       placeholder="Введите название"
-                      className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="focus:border-primary-light border-gray-bordershadow-sm mt-1 w-full rounded-md focus:ring-blue-500"
                       {...field}
                     />
                   </FormControl>
@@ -113,7 +113,7 @@ export function ProductFormModal({
                       type="number"
                       step="0.01"
                       placeholder="0.00"
-                      className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="focus:border-primary-light border-gray-bordershadow-sm mt-1 w-full rounded-md focus:ring-blue-500"
                       {...field}
                       onChange={(e) => {
                         const value = e.target.value
@@ -138,7 +138,7 @@ export function ProductFormModal({
                   <FormControl>
                     <Input
                       placeholder="Бренд"
-                      className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="focus:border-primary-light border-gray-border mt-1 w-full rounded-md shadow-sm focus:ring-blue-500"
                       {...field}
                     />
                   </FormControl>
@@ -158,7 +158,7 @@ export function ProductFormModal({
                   <FormControl>
                     <Input
                       placeholder="Необязательно"
-                      className="mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className="focus:border-primary-light border-gray-border mt-1 w-full rounded-md shadow-sm focus:ring-blue-500"
                       {...field}
                     />
                   </FormControl>

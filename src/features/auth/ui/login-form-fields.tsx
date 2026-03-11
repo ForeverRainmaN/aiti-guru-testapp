@@ -96,7 +96,7 @@ export function LoginFormFields({
             id="remember"
             checked={form.watch("remember")}
             onCheckedChange={(checked) => form.setValue("remember", checked === true)}
-            className="data-[state=checked]:border-primary data-[state=checked]:bg-primary h-5 w-5 rounded border-2 border-gray-300"
+            className="data-[state=checked]:border-primary data-[state=checked]:bg-primary border-gray-border h-5 w-5 rounded border-2"
           />
           <Label htmlFor="remember" className="text-gray-label text-base">
             Запомнить данные
@@ -117,7 +117,7 @@ export function LoginFormFields({
           <span className="text-gray-soft text-sm">или</span>
           <div className="bg-gray-border h-px flex-1" />
         </div>
-        <p className="text-center text-gray-500">
+        <p className="text-gray-label text-center">
           Нет аккаунта?{" "}
           <a
             href="#"

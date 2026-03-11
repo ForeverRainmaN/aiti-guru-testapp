@@ -4,7 +4,7 @@ import {
   getCoreRowModel,
   useReactTable
 } from "@tanstack/react-table"
-import { MoreVertical, Pencil, Plus } from "lucide-react"
+import { CircleEllipsis, Pencil, Plus } from "lucide-react"
 import { useMemo } from "react"
 
 import { Button, Checkbox } from "@/shared/ui"
@@ -27,14 +27,14 @@ export function ProductsTable({ data, onSort, onEdit }: ProductsTableProps) {
           <Checkbox
             checked={table.getIsAllRowsSelected()}
             onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
-            className="border-gray-300"
+            className="border-gray-border"
           />
         ),
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
-            className="border-gray-300"
+            className="border-gray-border"
           />
         ),
         size: 40
@@ -117,24 +117,28 @@ export function ProductsTable({ data, onSort, onEdit }: ProductsTableProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="bg-primary h-8 w-8 rounded-full text-white hover:bg-blue-700"
+              className="bg-primary h-6 w-12 rounded-full text-white hover:bg-blue-700 hover:text-white"
             >
               <Plus className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
-              <MoreVertical className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onEdit(row.original)}
-              className="h-8 w-8 text-gray-500"
+              className="text-gray-label h-8 w-8 rounded-full hover:bg-gray-100"
             >
               <Pencil className="h-4 w-4" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-label h-8 w-8 rounded-full hover:bg-gray-100"
+            >
+              <CircleEllipsis />
+            </Button>
           </div>
         ),
-        size: 100
+        size: 120
       })
     ],
     [onSort, onEdit]
@@ -157,7 +161,7 @@ export function ProductsTable({ data, onSort, onEdit }: ProductsTableProps) {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-4 py-3 text-left text-sm font-medium text-gray-500"
+                  className="text-gray-label px-4 py-3 text-left text-sm font-medium"
                   style={{ width: header.getSize() }}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}

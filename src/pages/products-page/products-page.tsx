@@ -8,50 +8,34 @@ import { useDebounce } from "@/shared"
 import { Button, Skeleton } from "@/shared/ui"
 
 import {
+  AddProductButton,
   useProductModals,
   useProducts,
   type Product,
   type ProductFormData
 } from "@/features/products"
-import {
-  AddProductButton,
-  Pagination,
-  ProductModals,
-  ProductsTable,
-  SearchBar
-} from "@/features/products/ui"
+import { Pagination, ProductModals, ProductsHeader, ProductsTable } from "@/features/products/ui"
 
 const LIMIT = 10
 
 export function ProductsPage() {
   const search = Route.useSearch()
-
   const { sortBy, sortOrder, page = 1 } = search
-
   const navigate = Route.useNavigate()
 
   const [searchQuery, setSearchQuery] = useState(search.q || "")
   const debouncedQuery = useDebounce(searchQuery, 500)
 
-  const {
-    products,
-    isLoading,
-    error,
-    total,
-    skip,
-    isRefetching,
-    addProduct,
-    updateProduct,
-    refetch
-  } = useProducts({
-    page,
-    limit: LIMIT,
-    ...(debouncedQuery && { q: debouncedQuery }),
-    ...(sortBy && { sortBy }),
-    ...(sortOrder && { sortOrder })
-  })
-
   const modals = useProductModals()
+
+  const { products, isLoading, error, total, skip, addProduct, updateProduct, refetch } =
+    useProducts({
+      page,
+      limit: LIMIT,
+      ...(debouncedQuery && { q: debouncedQuery }),
+      ...(sortBy && { sortBy }),
+      ...(sortOrder && { sortOrder })
+    })
 
   useEffect(() => {
     navigate({
@@ -63,62 +47,63 @@ export function ProductsPage() {
     if (error) toast.error(error.message)
   }, [error])
 
-  const handleSort = useCallback((column: "price" | "rating"): void => {
-    const newOrder = sortBy === column && sortOrder === "asc" ? "desc" : "asc"
-    navigate({
-      search: { ...search, sortBy: column, sortOrder: newOrder, page: 1 }
-    })
-  }, [])
+  const handleSort = useCallback(
+    (column: "price" | "rating"): void => {
+      const newOrder = sortBy === column && sortOrder === "asc" ? "desc" : "asc"
+      navigate({
+        search: { ...search, sortBy: column, sortOrder: newOrder, page: 1 }
+      })
+    },
+    [navigate, search, sortBy, sortOrder]
+  )
 
-  const handleAdd = useCallback((data: ProductFormData): void => {
-    addProduct(data)
-    toast.success("Товар добавлен")
-    modals.closeAddModal()
-  }, [])
+  const handleAdd = useCallback(
+    (data: ProductFormData): void => {
+      addProduct(data)
+      toast.success("Товар добавлен")
+      modals.closeAddModal()
+    },
+    [addProduct, modals]
+  )
 
-  const handleEdit = useCallback((data: ProductFormData): void => {
-    pipe(
-      modals.editingProduct,
-      O.fold(
-        () => {},
-        (product) => {
-          const updatedProduct: Product = {
-            ...product,
-            title: data.title,
-            price: data.price,
-            brand: data.brand,
-            sku: data.sku || product.sku
+  const handleEdit = useCallback(
+    (data: ProductFormData): void => {
+      pipe(
+        modals.editingProduct,
+        O.fold(
+          () => {},
+          (product) => {
+            const updatedProduct: Product = {
+              ...product,
+              title: data.title,
+              price: data.price,
+              brand: data.brand,
+              sku: data.sku || product.sku
+            }
+            updateProduct(updatedProduct)
+            toast.success("Товар обновлён")
+            modals.closeEditModal()
           }
-          updateProduct(updatedProduct)
-          toast.success("Товар обновлён")
-          modals.closeEditModal()
-        }
+        )
       )
-    )
-  }, [])
-
-  {
-    error && (
-      <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-800">
-        <p className="mb-2">Не удалось загрузить товары. Попробуйте ещё раз.</p>
-        <Button variant="outline" onClick={() => refetch()} disabled={isRefetching}>
-          Повторить
-        </Button>
-      </div>
-    )
-  }
+    },
+    [modals.editingProduct, updateProduct, modals]
+  )
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex h-24 items-center justify-between rounded-lg bg-white px-8 shadow-sm">
-          <h1 className="text-3xl font-bold text-gray-900">Товары</h1>
-          <div className="flex items-center gap-4">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
-          </div>
-        </div>
-
+        <ProductsHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
         <div className="rounded-lg bg-white p-6 shadow-sm">
+          {error && (
+            <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-800">
+              <p className="mb-2">Не удалось загрузить товары. Попробуйте ещё раз.</p>
+              <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
+                Повторить
+              </Button>
+            </div>
+          )}
+
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-700">Все позиции</h2>
             <AddProductButton onClick={modals.openAddModal} />
@@ -126,7 +111,7 @@ export function ProductsPage() {
 
           {isLoading ? (
             <div className="space-y-3">
-              {Array.from({ length: 7 }).map((_, i) => (
+              {Array.from({ length: 10 }).map((_, i) => (
                 <Skeleton key={i} className="h-12 w-full" />
               ))}
             </div>
@@ -141,7 +126,9 @@ export function ProductsPage() {
               total={total}
               skip={skip}
               limit={LIMIT}
-              onPageChange={(newPage) => navigate({ search: { ...search, page: newPage } })}
+              onPageChange={(newPageNumber) =>
+                navigate({ search: { ...search, page: newPageNumber } })
+              }
             />
           )}
         </div>

@@ -1,19 +1,18 @@
-import { AddProductButton } from "./add-product-button"
 import { SearchBar } from "./search-bar"
 
-type ProductsHeaderProps = {
+interface ProductsHeaderProps {
   searchQuery: string
   onSearchChange: (value: string) => void
-  onAddClick: () => void
 }
 
-export function ProductsHeader({ searchQuery, onSearchChange, onAddClick }: ProductsHeaderProps) {
+export function ProductsHeader({ searchQuery, onSearchChange }: ProductsHeaderProps) {
   return (
-    <div className="mb-8 flex items-center justify-between">
-      <h1 className="text-3xl font-bold text-gray-900">Товары</h1>
-      <div className="flex items-center gap-4">
-        <SearchBar value={searchQuery} onChange={onSearchChange} />
-        <AddProductButton onClick={onAddClick} />
+    <div className="mb-8 flex h-24 items-center rounded-lg bg-white px-8 shadow-sm">
+      <div className="w-40">
+        <h1 className="text-3xl font-bold text-gray-900">Товары</h1>
+      </div>
+      <div className="flex flex-1 justify-center">
+        <SearchBar value={searchQuery} onChange={onSearchChange} className="w-full max-w-xl" />
       </div>
     </div>
   )
