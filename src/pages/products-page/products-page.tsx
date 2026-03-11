@@ -67,7 +67,7 @@ export function ProductsPage() {
   )
 
   const handleEdit = useCallback(
-    (data: ProductFormData): void => {
+    (data: ProductFormData) => {
       pipe(
         modals.editingProduct,
         O.fold(
@@ -87,7 +87,7 @@ export function ProductsPage() {
         )
       )
     },
-    [modals.editingProduct, updateProduct, modals]
+    [updateProduct, modals]
   )
 
   return (

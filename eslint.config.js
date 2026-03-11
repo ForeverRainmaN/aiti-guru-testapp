@@ -1,7 +1,6 @@
 import js from "@eslint/js"
 import prettier from "eslint-config-prettier"
 import boundaries from "eslint-plugin-boundaries"
-import fpTs from "eslint-plugin-fp-ts"
 import reactHooks from "eslint-plugin-react-hooks"
 import reactRefresh from "eslint-plugin-react-refresh"
 import { defineConfig } from "eslint/config"
@@ -20,7 +19,6 @@ export default defineConfig(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
-      "fp-ts": fpTs,
       boundaries
     },
     rules: {
@@ -38,7 +36,8 @@ export default defineConfig(
             { from: ["shared"], allow: ["shared"] }
           ]
         }
-      ]
+      ],
+      "react-hooks/preserve-manual-memoization": "off"
     },
     settings: {
       "boundaries/elements": [
@@ -47,6 +46,12 @@ export default defineConfig(
         { type: "features", pattern: "src/features/**/*" },
         { type: "shared", pattern: "src/shared/**/*" }
       ]
+    }
+  },
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off"
     }
   },
   {

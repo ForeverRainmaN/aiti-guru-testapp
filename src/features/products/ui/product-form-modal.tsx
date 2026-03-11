@@ -55,22 +55,25 @@ export function ProductFormModal({
     }
   }, [open, initialData, form])
 
-  const onSubmit = useCallback((values: ProductFormData) => {
-    const cleanedData = {
-      ...values,
-      brand: values.brand || undefined,
-      sku: values.sku || undefined
-    }
-    const id = pipe(
-      initialData,
-      O.fold(
-        () => undefined,
-        (product) => product.id
+  const onSubmit = useCallback(
+    (values: ProductFormData) => {
+      const cleanedData = {
+        ...values,
+        brand: values.brand || undefined,
+        sku: values.sku || undefined
+      }
+      const id = pipe(
+        initialData,
+        O.fold(
+          () => undefined,
+          (product) => product.id
+        )
       )
-    )
-    onSave(cleanedData, id)
-    onOpenChange(false)
-  }, [])
+      onSave(cleanedData, id)
+      onOpenChange(false)
+    },
+    [initialData, onSave, onOpenChange]
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
