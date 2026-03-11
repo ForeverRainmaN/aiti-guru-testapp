@@ -1,73 +1,105 @@
-# React + TypeScript + Vite
+# Aiti Guru Тестовое задание – Интерфейс управления товарами
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React-приложение для управления списком товаров с авторизацией, поиском, сортировкой, пагинацией и локальным добавлением/редактированием товаров. Реализовано в соответствии с макетом Figma и требованиями тестового задания.
 
-Currently, two official plugins are available:
+## 🚀 Функциональность
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Авторизация** с валидацией полей, запоминанием сессии (localStorage/sessionStorage) и обработкой ошибок.
+- **Страница товаров**:
+  - Загрузка списка товаров с DummyJSON API.
+  - Поиск с debounce (параметр `q` в URL).
+  - Сортировка по цене и рейтингу (параметры `sortBy`, `sortOrder` в URL).
+  - Пагинация (параметр `page` в URL).
+  - Таблица с чекбоксами, фото, категорией, вендором, артикулом, оценкой, ценой и действиями (добавить в избранное / редактировать).
+  - Подсветка рейтинга красным, если < 3.
+  - Локальное добавление и редактирование товара (без отправки на сервер) через модальное окно с валидацией.
+  - Уведомления (toast) об успешных действиях и ошибках.
 
-## React Compiler
+## 🧰 Стек технологий
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** + **TypeScript**
+- **Сборка**: Vite
+- **Маршрутизация**: TanStack Router (типизированные параметры, ленивая загрузка)
+- **Управление серверным состоянием**: TanStack Query (кеширование, ревалидация)
+- **Таблица**: TanStack Table (гибкие колонки, ручная сортировка)
+- **Формы**: React Hook Form + Zod (валидация)
+- **UI-компоненты**: shadcn/ui + Tailwind CSS (кастомизация под макет)
+- **Функциональное программирование**: fp-ts (обработка ошибок, Option, TaskEither)
+- **HTTP-клиент**: axios
+- **Уведомления**: sonner
+- **Линтер**: ESLint (правила для FSD, fp-ts, React)
+- **Контейнеризация**: Docker + Nginx (многоступенчатая сборка)
+- **Архитектура**: Feature-Sliced Design (FSD)
 
-## Expanding the ESLint configuration
+## 📁 Структура проекта (FSD)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── app/ # Инициализация приложения (роутер, провайдеры, глобальные стили)
+├── pages/ # Страницы (LoginPage, ProductsPage)
+├── features/ # Фичи: auth, products (model, api, ui, hooks)
+├── shared/ # Переиспользуемые модули (ui-компоненты, lib, api-factory)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔧 Установка и запуск
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Локально
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Установить зависимости
+npm install
+
+# Запустить в режиме разработки
+npm run dev
+Приложение будет доступно по адресу http://localhost:5173.
+
+Через Docker
+bash
+# Собрать образ
+docker build -t aiti-guru-app .
+
+# Запустить контейнер
+docker run -p 8080:80 aiti-guru-app
+Или с помощью docker-compose:
+
+bash
+docker-compose up --build
+Приложение будет доступно по адресу http://localhost:8080.
 ```
+
+## 🐳 Docker
+
+Многоступенчатый Dockerfile:
+
+- builder: сборка приложения в Node-образе.
+
+- nginx: раздача статики через Nginx с поддержкой SPA (перенаправление всех запросов на index.html).
+
+## 🧠 Архитектурные решения
+
+- Feature-Sliced Design: код организован по фичам, каждая фича изолирована и экспортирует только публичное API через index.ts.
+
+- Однонаправленные импорты: настроены через ESLint (плагин boundaries), запрещены прямые кросс-фичевые импорты.
+
+- Управление состоянием: серверное состояние – TanStack Query, UI-состояние (сортировка, поиск, пагинация) – URL, локальные изменения – useState в кастомных хуках.
+
+- Функциональный подход: fp-ts используется для безопасной обработки ошибок в API-слое (TaskEither, Option).
+
+- Типизация: строгая, с использованием Zod для валидации ответов API и форм.
+
+- Производительность: мемоизация колонок таблицы, обработчиков событий; ленивая загрузка страницы товаров.
+
+## 🤖 Использование ИИ
+
+В процессе разработки применялась модель DeepSeek. Основные промпты касались:
+
+- Некоторой оптимизациии
+- Деббагинга ошибок
+- ESlint конфигурации
+- А так же написания этого README :)
+
+## Возможные улучшения:
+
+- Добавить тесты (vitest)
+- Возможно добавить виртуализацию, если колонок / рядов станет больше
+- Всё таки подумать о state manager'е, хотя вопрос достаточно спорный

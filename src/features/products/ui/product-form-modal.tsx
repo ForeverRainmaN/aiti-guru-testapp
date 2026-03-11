@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import { useForm } from "react-hook-form"
 
 import { Button } from "@/shared/ui/button"
@@ -55,7 +55,7 @@ export function ProductFormModal({
     }
   }, [open, initialData, form])
 
-  const onSubmit = (values: ProductFormData) => {
+  const onSubmit = useCallback((values: ProductFormData) => {
     const cleanedData = {
       ...values,
       brand: values.brand || undefined,
@@ -70,7 +70,7 @@ export function ProductFormModal({
     )
     onSave(cleanedData, id)
     onOpenChange(false)
-  }
+  }, [])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -1,5 +1,5 @@
 import * as O from "fp-ts/Option"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 
 import type { Product } from "../model/schema"
 
@@ -18,18 +18,18 @@ export function useProductModals(): UseProductModalReturnType {
   const [editingProduct, setEditingProduct] = useState<O.Option<Product>>(O.none)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
-  const openAddModal = () => setIsAddModalOpen(true)
-  const closeAddModal = () => setIsAddModalOpen(false)
+  const openAddModal = useCallback(() => setIsAddModalOpen(true), [])
+  const closeAddModal = useCallback(() => setIsAddModalOpen(false), [])
 
   const openEditModal = (product: Product) => {
     setEditingProduct(O.some(product))
     setIsEditModalOpen(true)
   }
 
-  const closeEditModal = () => {
+  const closeEditModal = useCallback(() => {
     setIsEditModalOpen(false)
     setEditingProduct(O.none)
-  }
+  }, [])
 
   return {
     isAddModalOpen,

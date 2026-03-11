@@ -1,11 +1,11 @@
 import { Route } from "@/app/routes/products"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { useDebounce } from "@/shared"
-import { Skeleton } from "@/shared/ui"
+import { Button, Skeleton } from "@/shared/ui"
 
 import {
   useProductModals,
@@ -33,7 +33,17 @@ export function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState(search.q || "")
   const debouncedQuery = useDebounce(searchQuery, 500)
 
-  const { products, isLoading, error, total, skip, addProduct, updateProduct } = useProducts({
+  const {
+    products,
+    isLoading,
+    error,
+    total,
+    skip,
+    isRefetching,
+    addProduct,
+    updateProduct,
+    refetch
+  } = useProducts({
     page,
     limit: LIMIT,
     ...(debouncedQuery && { q: debouncedQuery }),
@@ -53,20 +63,20 @@ export function ProductsPage() {
     if (error) toast.error(error.message)
   }, [error])
 
-  const handleSort = (column: "price" | "rating"): void => {
+  const handleSort = useCallback((column: "price" | "rating"): void => {
     const newOrder = sortBy === column && sortOrder === "asc" ? "desc" : "asc"
     navigate({
       search: { ...search, sortBy: column, sortOrder: newOrder, page: 1 }
     })
-  }
+  }, [])
 
-  const handleAdd = (data: ProductFormData): void => {
+  const handleAdd = useCallback((data: ProductFormData): void => {
     addProduct(data)
     toast.success("Товар добавлен")
     modals.closeAddModal()
-  }
+  }, [])
 
-  const handleEdit = (data: ProductFormData): void => {
+  const handleEdit = useCallback((data: ProductFormData): void => {
     pipe(
       modals.editingProduct,
       O.fold(
@@ -85,9 +95,18 @@ export function ProductsPage() {
         }
       )
     )
-  }
+  }, [])
 
-  if (error) return <div>Ошибка: {error.message}</div>
+  {
+    error && (
+      <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-800">
+        <p className="mb-2">Не удалось загрузить товары. Попробуйте ещё раз.</p>
+        <Button variant="outline" onClick={() => refetch()} disabled={isRefetching}>
+          Повторить
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">

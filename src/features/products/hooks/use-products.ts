@@ -1,6 +1,6 @@
 import { getProducts } from "@/features/products/api"
 import { useQuery } from "@tanstack/react-query"
-import { useMemo, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import type { Product, ProductFormData } from "../model/schema"
 
 interface UseProductsParams {
@@ -14,7 +14,7 @@ interface UseProductsParams {
 export function useProducts({ q, sortBy, sortOrder, page, limit }: UseProductsParams) {
   const skip = (page - 1) * limit
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, isRefetching, refetch } = useQuery({
     queryKey: ["products", { q, sortBy, sortOrder, page }],
     queryFn: () =>
       getProducts({
@@ -28,7 +28,7 @@ export function useProducts({ q, sortBy, sortOrder, page, limit }: UseProductsPa
 
   const [localEdits, setLocalEdits] = useState<Record<number, Product>>({})
 
-  const addProduct = (newProduct: ProductFormData) => {
+  const addProduct = useCallback((newProduct: ProductFormData) => {
     const id = Date.now()
     const product: Product = {
       id,
@@ -45,11 +45,11 @@ export function useProducts({ q, sortBy, sortOrder, page, limit }: UseProductsPa
       sku: newProduct.sku || `SKU-${id}`
     }
     setLocalEdits((prev) => ({ ...prev, [id]: product }))
-  }
+  }, [])
 
-  const updateProduct = (updatedProduct: Product) => {
+  const updateProduct = useCallback((updatedProduct: Product) => {
     setLocalEdits((prev) => ({ ...prev, [updatedProduct.id]: updatedProduct }))
-  }
+  }, [])
 
   const products = useMemo(() => {
     const serverProducts = data?.products ?? []
@@ -65,8 +65,10 @@ export function useProducts({ q, sortBy, sortOrder, page, limit }: UseProductsPa
     total: data?.total ?? 0,
     skip,
     isLoading,
+    isRefetching,
     error,
     addProduct,
-    updateProduct
+    updateProduct,
+    refetch
   }
 }
