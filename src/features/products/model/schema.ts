@@ -14,7 +14,6 @@ export const ProductSchema = z.object({
   images: z.array(z.string()),
   sku: z.string().optional()
 })
-export type Product = z.infer<typeof ProductSchema>
 
 export const ProductsResponseSchema = z.object({
   products: z.array(ProductSchema),
@@ -23,13 +22,16 @@ export const ProductsResponseSchema = z.object({
   limit: z.number()
 })
 
-export const AddProductSchema = z.object({
+export const ProductFormSchema = z.object({
   title: z.string().min(1, "Название обязательно"),
-  price: z.number().positive("Цена должна быть положительной"),
-  brand: z.string().min(1, "Вендор обязателен"),
+  price: z
+    .number()
+    .positive("Цена должна быть положительной")
+    .min(0.01, "Цена не может быть нулевой"),
+  brand: z.string().optional(),
   sku: z.string().optional()
 })
 
-export type AddProductForm = z.infer<typeof AddProductSchema>
-
+export type Product = z.infer<typeof ProductSchema>
+export type ProductFormData = z.infer<typeof ProductFormSchema>
 export type ProductsResponse = z.infer<typeof ProductsResponseSchema>

@@ -1,7 +1,7 @@
 import { AddProductButton } from "./add-product-button"
 import { SearchBar } from "./search-bar"
 
-interface ProductsHeaderProps {
+type ProductsHeaderProps = {
   searchQuery: string
   onSearchChange: (value: string) => void
   onAddClick: () => void

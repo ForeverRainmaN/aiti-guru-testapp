@@ -1,7 +1,7 @@
 import { Input } from "@/shared/ui"
 import { Search } from "lucide-react"
 
-interface SearchBarProps {
+type SearchBarProps = {
   value: string
   onChange: (value: string) => void
 }

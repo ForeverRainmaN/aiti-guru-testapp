@@ -1,33 +1,47 @@
 import { Route } from "@/app/routes/products"
+import { pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { useDebounce } from "@/shared"
 import { Skeleton } from "@/shared/ui"
 
-import { useProducts } from "@/features/products/hooks"
-import { AddProductButton, Pagination, ProductsTable, SearchBar } from "@/features/products/ui"
-import { AddProductModal } from "@/features/products/ui/add-product-modal"
+import {
+  useProductModals,
+  useProducts,
+  type Product,
+  type ProductFormData
+} from "@/features/products"
+import {
+  AddProductButton,
+  Pagination,
+  ProductModals,
+  ProductsTable,
+  SearchBar
+} from "@/features/products/ui"
+
+const LIMIT = 10
 
 export function ProductsPage() {
   const search = Route.useSearch()
+
+  const { sortBy, sortOrder, page = 1 } = search
+
   const navigate = Route.useNavigate()
 
   const [searchQuery, setSearchQuery] = useState(search.q || "")
   const debouncedQuery = useDebounce(searchQuery, 500)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-  const { sortBy, sortOrder, page = 1 } = search
-
-  const limit = 10
-
-  const { products, isLoading, error, total, skip, addProduct } = useProducts({
+  const { products, isLoading, error, total, skip, addProduct, updateProduct } = useProducts({
     page,
-    limit,
+    limit: LIMIT,
     ...(debouncedQuery && { q: debouncedQuery }),
     ...(sortBy && { sortBy }),
     ...(sortOrder && { sortOrder })
   })
+
+  const modals = useProductModals()
 
   useEffect(() => {
     navigate({
@@ -36,16 +50,41 @@ export function ProductsPage() {
   }, [debouncedQuery, navigate, search])
 
   useEffect(() => {
-    if (error) {
-      toast.error(error.message)
-    }
+    if (error) toast.error(error.message)
   }, [error])
 
-  const handleSort = (column: "price" | "rating") => {
+  const handleSort = (column: "price" | "rating"): void => {
     const newOrder = sortBy === column && sortOrder === "asc" ? "desc" : "asc"
     navigate({
       search: { ...search, sortBy: column, sortOrder: newOrder, page: 1 }
     })
+  }
+
+  const handleAdd = (data: ProductFormData): void => {
+    addProduct(data)
+    toast.success("Товар добавлен")
+    modals.closeAddModal()
+  }
+
+  const handleEdit = (data: ProductFormData): void => {
+    pipe(
+      modals.editingProduct,
+      O.fold(
+        () => {},
+        (product) => {
+          const updatedProduct: Product = {
+            ...product,
+            title: data.title,
+            price: data.price,
+            brand: data.brand,
+            sku: data.sku || product.sku
+          }
+          updateProduct(updatedProduct)
+          toast.success("Товар обновлён")
+          modals.closeEditModal()
+        }
+      )
+    )
   }
 
   if (error) return <div>Ошибка: {error.message}</div>
@@ -63,35 +102,39 @@ export function ProductsPage() {
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-700">Все позиции</h2>
-            <AddProductButton onClick={() => setIsAddModalOpen(true)} />
+            <AddProductButton onClick={modals.openAddModal} />
           </div>
 
           {isLoading ? (
             <div className="space-y-3">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
+              {Array.from({ length: 7 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
             </div>
           ) : (
-            <ProductsTable data={products} onSort={handleSort} />
+            <ProductsTable data={products} onSort={handleSort} onEdit={modals.openEditModal} />
           )}
 
           {total > 0 && (
             <Pagination
               currentPage={page}
-              totalPages={Math.ceil(total / limit)}
+              totalPages={Math.ceil(total / LIMIT)}
               total={total}
               skip={skip}
-              limit={limit}
+              limit={LIMIT}
               onPageChange={(newPage) => navigate({ search: { ...search, page: newPage } })}
             />
           )}
         </div>
 
-        <AddProductModal
-          open={isAddModalOpen}
-          onOpenChange={setIsAddModalOpen}
-          onAdd={addProduct}
+        <ProductModals
+          isAddModalOpen={modals.isAddModalOpen}
+          isEditModalOpen={modals.isEditModalOpen}
+          editingProduct={modals.editingProduct}
+          onAdd={handleAdd}
+          onEdit={handleEdit}
+          onCloseAdd={modals.closeAddModal}
+          onCloseEdit={modals.closeEditModal}
         />
       </div>
     </div>

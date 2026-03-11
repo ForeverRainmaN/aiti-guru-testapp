@@ -1,7 +1,7 @@
 import { Button } from "@/shared/ui"
 import { PlusCircle } from "lucide-react"
 
-interface AddProductButtonProps {
+type AddProductButtonProps = {
   onClick: () => void
 }
 

@@ -1,20 +1,18 @@
+import { getProducts } from "@/features/products/api"
 import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import type { Product, ProductFormData } from "../model/schema"
 
-import { getProducts } from "../api"
-import type { AddProductForm, Product } from "../model"
-
-export function useProducts(searchParams: {
+interface UseProductsParams {
   q?: string
   sortBy?: string
   sortOrder?: "asc" | "desc"
   page: number
   limit: number
-}) {
-  const { q, sortBy, sortOrder, page, limit } = searchParams
-  const skip = (page - 1) * limit
+}
 
-  const [localProducts, setLocalProducts] = useState<Product[]>([])
+export function useProducts({ q, sortBy, sortOrder, page, limit }: UseProductsParams) {
+  const skip = (page - 1) * limit
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["products", { q, sortBy, sortOrder, page }],
@@ -28,9 +26,12 @@ export function useProducts(searchParams: {
       })
   })
 
-  const addProduct = (newProduct: AddProductForm) => {
+  const [localEdits, setLocalEdits] = useState<Record<number, Product>>({})
+
+  const addProduct = (newProduct: ProductFormData) => {
+    const id = Date.now()
     const product: Product = {
-      id: Date.now(),
+      id,
       title: newProduct.title,
       price: newProduct.price,
       brand: newProduct.brand,
@@ -40,20 +41,32 @@ export function useProducts(searchParams: {
       stock: 0,
       category: "",
       thumbnail: "",
-      images: []
+      images: [],
+      sku: newProduct.sku || `SKU-${id}`
     }
-    setLocalProducts((prev) => [product, ...prev])
+    setLocalEdits((prev) => ({ ...prev, [id]: product }))
   }
 
-  const combinedProducts = [...(data?.products ?? []), ...localProducts]
+  const updateProduct = (updatedProduct: Product) => {
+    setLocalEdits((prev) => ({ ...prev, [updatedProduct.id]: updatedProduct }))
+  }
+
+  const products = useMemo(() => {
+    const serverProducts = data?.products ?? []
+    const merged = serverProducts.map((p) => localEdits[p.id] || p)
+    const localAdds = Object.values(localEdits).filter(
+      (p) => !serverProducts.some((sp) => sp.id === p.id)
+    )
+    return [...merged, ...localAdds]
+  }, [data, localEdits])
 
   return {
-    products: combinedProducts,
+    products,
+    total: data?.total ?? 0,
+    skip,
     isLoading,
     error,
-    total: data?.total ?? 0,
-    limit,
-    skip,
-    addProduct
+    addProduct,
+    updateProduct
   }
 }

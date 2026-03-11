@@ -3,6 +3,7 @@ import { pipe } from "fp-ts/function"
 import * as T from "fp-ts/Task"
 import * as TE from "fp-ts/TaskEither"
 import { toast } from "sonner"
+
 import { saveToken } from "../model"
 
 export const useHandleSaveToken = () => {

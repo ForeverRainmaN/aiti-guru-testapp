@@ -1,130 +1,144 @@
-import { Button, Checkbox } from "@/shared/ui"
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable
 } from "@tanstack/react-table"
-import { MoreVertical, Plus } from "lucide-react"
+import { MoreVertical, Pencil, Plus } from "lucide-react"
+import { useMemo } from "react"
+
+import { Button, Checkbox } from "@/shared/ui"
 import { type Product } from "../model/schema"
 
 const columnHelper = createColumnHelper<Product>()
 
-interface ProductsTableProps {
+type ProductsTableProps = {
   data: Product[]
   onSort: (column: "price" | "rating") => void
+  onEdit: (product: Product) => void
 }
 
-export function ProductsTable({ data, onSort }: ProductsTableProps) {
-  const columns = [
-    columnHelper.display({
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
-          className="border-gray-300"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          className="border-gray-300"
-        />
-      ),
-      size: 40
-    }),
-    columnHelper.display({
-      id: "photo",
-      header: "",
-      cell: ({ row }) => {
-        const thumbnail = row.original.thumbnail
-        return (
-          <img
-            src={thumbnail}
-            alt={row.original.title}
-            className="h-10 w-10 rounded-md object-cover"
-            onError={(e) => (e.currentTarget.src = "/placeholder.png")} // заглушка при ошибке
+export function ProductsTable({ data, onSort, onEdit }: ProductsTableProps) {
+  const columns = useMemo(
+    () => [
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllRowsSelected()}
+            onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
+            className="border-gray-300"
           />
-        )
-      },
-      size: 60
-    }),
-    columnHelper.accessor("title", {
-      header: "Наименование",
-      cell: (info) => (
-        <div>
-          <div className="font-medium">{info.getValue()}</div>
-          <div className="text-xs text-gray-400">{info.row.original.category}</div>
-        </div>
-      ),
-      size: 250
-    }),
-    columnHelper.accessor("brand", {
-      header: "Вендор",
-      cell: (info) => <span className="font-semibold">{info.getValue()}</span>,
-      size: 120
-    }),
-    columnHelper.accessor("id", {
-      header: "Артикул",
-      cell: (info) => <span className="text-gray-600">{info.getValue()}</span>,
-      size: 120
-    }),
-    columnHelper.accessor("rating", {
-      header: () => (
-        <button
-          onClick={() => onSort("rating")}
-          className="flex items-center gap-1 hover:text-gray-900"
-        >
-          Оценка
-        </button>
-      ),
-      cell: (info) => {
-        const rating = info.getValue()
-        return <span className={rating < 3 ? "text-red-500" : ""}>{rating.toFixed(1)}/5</span>
-      },
-      size: 100
-    }),
-    columnHelper.accessor("price", {
-      header: () => (
-        <button
-          onClick={() => onSort("price")}
-          className="flex items-center gap-1 hover:text-gray-900"
-        >
-          Цена, ₽
-        </button>
-      ),
-      cell: (info) => {
-        const price = info.getValue()
-        return new Intl.NumberFormat("ru-RU", {
-          style: "currency",
-          currency: "RUB",
-          minimumFractionDigits: 0
-        }).format(price)
-      },
-      size: 120
-    }),
-    columnHelper.display({
-      id: "actions",
-      header: "",
-      cell: () => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 rounded-full bg-blue-600 text-white hover:bg-blue-700"
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            className="border-gray-300"
+          />
+        ),
+        size: 40
+      }),
+      columnHelper.display({
+        id: "photo",
+        header: "",
+        cell: ({ row }) => {
+          const thumbnail = row.original.thumbnail
+          return (
+            <img
+              src={thumbnail}
+              alt={row.original.title}
+              className="h-10 w-10 rounded-md object-cover"
+              onError={(e) => (e.currentTarget.src = "/placeholder.png")} // TODO
+            />
+          )
+        },
+        size: 60
+      }),
+      columnHelper.accessor("title", {
+        header: "Наименование",
+        cell: (info) => (
+          <div>
+            <div className="font-medium">{info.getValue()}</div>
+            <div className="text-xs text-gray-400">{info.row.original.category}</div>
+          </div>
+        ),
+        size: 250
+      }),
+      columnHelper.accessor("brand", {
+        header: "Вендор",
+        cell: (info) => <span className="font-semibold">{info.getValue() ?? "—"}</span>,
+        size: 120
+      }),
+      columnHelper.accessor("id", {
+        header: "Артикул",
+        cell: (info) => <span className="text-gray-600">{info.getValue()}</span>,
+        size: 120
+      }),
+      columnHelper.accessor("rating", {
+        header: () => (
+          <button
+            onClick={() => onSort("rating")}
+            className="flex items-center gap-1 hover:text-gray-900"
           >
-            <Plus className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
-            <MoreVertical className="h-5 w-5" />
-          </Button>
-        </div>
-      ),
-      size: 100
-    })
-  ]
+            Оценка
+          </button>
+        ),
+        cell: (info) => {
+          const rating = info.getValue()
+          return <span className={rating < 3 ? "text-red-500" : ""}>{rating.toFixed(1)}/5</span>
+        },
+        size: 100
+      }),
+      columnHelper.accessor("price", {
+        header: () => (
+          <button
+            onClick={() => onSort("price")}
+            className="flex items-center gap-1 hover:text-gray-900"
+          >
+            Цена, ₽
+          </button>
+        ),
+        cell: (info) => {
+          const price = info.getValue()
+          return new Intl.NumberFormat("ru-RU", {
+            style: "currency",
+            currency: "RUB",
+            minimumFractionDigits: 0
+          }).format(price)
+        },
+        size: 120
+      }),
+      columnHelper.display({
+        id: "actions",
+        header: "",
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="bg-primary h-8 w-8 rounded-full text-white hover:bg-blue-700"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500">
+              <MoreVertical className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onEdit(row.original)}
+              className="h-8 w-8 text-gray-500"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+        size: 100
+      })
+    ],
+    [onSort, onEdit]
+  )
 
   const table = useReactTable({
     data,
