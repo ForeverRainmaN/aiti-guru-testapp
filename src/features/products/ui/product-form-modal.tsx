@@ -105,7 +105,7 @@ export function ProductFormModal({
             <FormField
               control={form.control}
               name="price"
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <FormItem className="mb-4">
                   <FormLabel className="text-sm font-medium text-gray-700">Цена</FormLabel>
                   <FormControl>
