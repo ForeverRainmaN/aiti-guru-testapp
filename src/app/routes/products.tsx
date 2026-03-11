@@ -1,5 +1,4 @@
-import { ProductsPage } from "@/pages/products-page"
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router"
 import { z } from "zod"
 
 export const productsSearchSchema = z.object({
@@ -13,5 +12,5 @@ export type ProductsSearch = z.infer<typeof productsSearchSchema>
 
 export const Route = createFileRoute("/products")({
   validateSearch: productsSearchSchema,
-  component: ProductsPage
+  component: lazyRouteComponent(() => import("@/pages/products-page"), "ProductsPage")
 })
