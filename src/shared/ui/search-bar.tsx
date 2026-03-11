@@ -1,6 +1,6 @@
-import { cn } from "@/shared/lib/utils"
-import { Input } from "@/shared/ui"
 import { Search } from "lucide-react"
+import { cn } from "../lib"
+import { Input } from "./input"
 
 interface SearchBarProps {
   value: string

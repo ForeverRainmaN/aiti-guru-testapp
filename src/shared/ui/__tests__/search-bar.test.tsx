@@ -1,7 +1,7 @@
+import { SearchBar } from "@/shared/ui"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { SearchBar } from "../search-bar"
 
 describe("SearchBar", () => {
   it("renders input with placeholder", () => {

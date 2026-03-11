@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { useDebounce } from "@/shared"
-import { Button, Skeleton } from "@/shared/ui"
+import { Button, Pagination, Skeleton } from "@/shared/ui"
 
 import {
   AddProductButton,
@@ -14,7 +14,7 @@ import {
   type Product,
   type ProductFormData
 } from "@/features/products"
-import { Pagination, ProductModals, ProductsHeader, ProductsTable } from "@/features/products/ui"
+import { ProductModals, ProductsHeader, ProductsTable } from "@/features/products/ui"
 
 const LIMIT = 10
 

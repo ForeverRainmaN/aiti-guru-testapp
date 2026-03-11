@@ -60,7 +60,8 @@ export function ProductFormModal({
       const cleanedData = {
         ...values,
         brand: values.brand || undefined,
-        sku: values.sku || undefined
+        sku: values.sku || undefined,
+        price: typeof values.price === "string" ? parseFloat(values.price) : values.price
       }
       const id = pipe(
         initialData,
@@ -109,24 +110,24 @@ export function ProductFormModal({
               control={form.control}
               name="price"
               render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormLabel className="text-sm font-medium text-gray-700">Цена</FormLabel>
+                <FormItem>
+                  <FormLabel>Цена</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
-                      step="0.01"
+                      type="text"
+                      inputMode="decimal"
                       placeholder="0.00"
-                      className="focus:border-primary-light border-gray-bordershadow-sm mt-1 w-full rounded-md focus:ring-blue-500"
-                      {...field}
+                      value={field.value ?? ""}
                       onChange={(e) => {
                         const value = e.target.value
-                        field.onChange(value === "" ? undefined : parseFloat(value))
+                        if (value === "" || /^\d*\.?\d*$/.test(value)) {
+                          field.onChange(value)
+                        }
                       }}
-                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <div className="min-h-5">
-                    <FormMessage className="text-xs text-red-500" />
+                    <FormMessage />
                   </div>
                 </FormItem>
               )}
