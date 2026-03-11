@@ -1,7 +1,8 @@
-import { cn, Input } from "@/shared"
+import { cn } from "@/shared/lib/utils"
+import { Input } from "@/shared/ui"
 import { Search } from "lucide-react"
 
-type SearchBarProps = {
+interface SearchBarProps {
   value: string
   onChange: (value: string) => void
   className?: string
@@ -9,7 +10,7 @@ type SearchBarProps = {
 
 export function SearchBar({ value, onChange, className }: SearchBarProps) {
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative", className)} data-testid="search-container">
       <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
       <Input
         placeholder="Найти"

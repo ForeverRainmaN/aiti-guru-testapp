@@ -1,7 +1,7 @@
 import { Button } from "@/shared/ui"
-import { PlusCircle } from "lucide-react"
+import { Plus } from "lucide-react"
 
-type AddProductButtonProps = {
+interface AddProductButtonProps {
   onClick: () => void
 }
 
@@ -9,9 +9,9 @@ export function AddProductButton({ onClick }: AddProductButtonProps) {
   return (
     <Button
       onClick={onClick}
-      className="bg-primary h-10 gap-2 rounded-md px-4 text-white hover:bg-blue-700"
+      className="bg-primary hover:bg-primary-dark h-10 gap-2 rounded-md px-4 text-white"
     >
-      <PlusCircle className="h-5 w-5" />
+      <Plus className="h-5 w-5" />
       <span className="text-sm font-medium">Добавить</span>
     </Button>
   )
