@@ -73,7 +73,7 @@ const validateResponse = <A>(
 
 // Преобразует TaskEither в Promise для использования в React Query
 
-export const toPromise = <T>(task: TE.TaskEither<Error, T>): Promise<T> =>
+export const toPromise = <A>(task: TE.TaskEither<Error, A>): Promise<A> =>
   task().then(
     E.fold(
       (error) => Promise.reject(error),
