@@ -4,10 +4,9 @@ import { pipe } from "fp-ts/function"
 import { useCallback, useEffect } from "react"
 import { useForm } from "react-hook-form"
 
-import { Button } from "@/shared/ui/button"
+import { Button, Input, NumberInput } from "@/shared/ui"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/ui/form"
-import { Input } from "@/shared/ui/input"
 
 import { ProductFormSchema, type Product, type ProductFormData } from "../model/schema"
 
@@ -60,8 +59,7 @@ export function ProductFormModal({
       const cleanedData = {
         ...values,
         brand: values.brand || undefined,
-        sku: values.sku || undefined,
-        price: typeof values.price === "string" ? parseFloat(values.price) : values.price
+        sku: values.sku || undefined
       }
       const id = pipe(
         initialData,
@@ -76,13 +74,20 @@ export function ProductFormModal({
     [initialData, onSave, onOpenChange]
   )
 
+  const descriptionId = "product-form-description"
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-6 sm:max-w-md">
+      <DialogContent className="p-6 sm:max-w-md" aria-describedby={descriptionId}>
         <DialogHeader className="mb-4">
           <DialogTitle className="text-xl font-semibold">
             {mode === "add" ? "Добавить товар" : "Редактировать товар"}
           </DialogTitle>
+          <p id={descriptionId} className="sr-only">
+            {mode === "add"
+              ? "Форма для добавления нового товара"
+              : "Форма для редактирования товара. Измените необходимые поля"}
+          </p>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-0">
@@ -95,7 +100,7 @@ export function ProductFormModal({
                   <FormControl>
                     <Input
                       placeholder="Введите название"
-                      className="focus:border-primary-light border-gray-bordershadow-sm mt-1 w-full rounded-md focus:ring-blue-500"
+                      className="border-gray-border focus:border-primary-light mt-1 w-full rounded-md shadow-sm focus:ring-blue-500"
                       {...field}
                     />
                   </FormControl>
@@ -113,17 +118,13 @@ export function ProductFormModal({
                 <FormItem>
                   <FormLabel>Цена</FormLabel>
                   <FormControl>
-                    <Input
-                      type="text"
-                      inputMode="decimal"
-                      placeholder="0.00"
-                      value={field.value ?? ""}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        if (value === "" || /^\d*\.?\d*$/.test(value)) {
-                          field.onChange(value)
-                        }
-                      }}
+                    <NumberInput
+                      value={field.value ?? undefined}
+                      onValueChange={(val) => field.onChange(val)}
+                      decimalScale={2}
+                      fixedDecimalScale
+                      thousandSeparator=" "
+                      hideStepper
                     />
                   </FormControl>
                   <div className="min-h-5">
@@ -141,8 +142,8 @@ export function ProductFormModal({
                   <FormLabel className="text-sm font-medium text-gray-700">Вендор</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Бренд"
-                      className="focus:border-primary-light border-gray-border mt-1 w-full rounded-md shadow-sm focus:ring-blue-500"
+                      placeholder="Бренд (опционально)"
+                      className="border-gray-border focus:border-primary-light mt-1 w-full rounded-md shadow-sm focus:ring-blue-500"
                       {...field}
                     />
                   </FormControl>
@@ -161,8 +162,8 @@ export function ProductFormModal({
                   <FormLabel className="text-sm font-medium text-gray-700">Артикул</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Необязательно"
-                      className="focus:border-primary-light border-gray-border mt-1 w-full rounded-md shadow-sm focus:ring-blue-500"
+                      placeholder="Артикул (опционально)"
+                      className="border-gray-border focus:border-primary-light mt-1 w-full rounded-md shadow-sm focus:ring-blue-500"
                       {...field}
                     />
                   </FormControl>
@@ -174,10 +175,20 @@ export function ProductFormModal({
             />
 
             <div className="mt-2 flex justify-end gap-3 pt-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                aria-label="Закрыть форму без сохранения"
+              >
                 Отмена
               </Button>
-              <Button type="submit">{mode === "add" ? "Добавить" : "Сохранить"}</Button>
+              <Button
+                type="submit"
+                aria-label={mode === "add" ? "Добавить товар" : "Сохранить изменения"}
+              >
+                {mode === "add" ? "Добавить" : "Сохранить"}
+              </Button>
             </div>
           </form>
         </Form>

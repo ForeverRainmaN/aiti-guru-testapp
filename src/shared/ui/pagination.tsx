@@ -10,6 +10,7 @@ type PaginationProps = {
   limit: number
   onPageChange: (page: number) => void
 }
+
 export function Pagination({
   currentPage,
   totalPages,
@@ -21,13 +22,15 @@ export function Pagination({
   const pages = Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1)
   const from = skip + 1
   const to = Math.min(skip + limit, total)
+
   return (
-    <div className="mt-6 flex items-center justify-between">
+    <nav aria-label="Пагинация" className="mt-6 flex items-center justify-between">
       <p className="text-gray-label text-sm">
-        Показано {from}-{to} из {totalPages}
+        Показано {from}-{to} из {total}
       </p>
       <div className="flex items-center gap-2">
         <Button
+          aria-label="Предыдущая страница"
           variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage - 1)}
@@ -36,9 +39,12 @@ export function Pagination({
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
+
         {pages.map((page) => (
           <Button
             key={page}
+            aria-label={`Страница ${page}`}
+            aria-current={currentPage === page ? "page" : undefined}
             variant={currentPage === page ? "default" : "outline"}
             size="icon"
             onClick={() => onPageChange(page)}
@@ -52,7 +58,9 @@ export function Pagination({
             {page}
           </Button>
         ))}
+
         <Button
+          aria-label="Следующая страница"
           variant="outline"
           size="icon"
           onClick={() => onPageChange(currentPage + 1)}
@@ -62,6 +70,6 @@ export function Pagination({
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
-    </div>
+    </nav>
   )
 }

@@ -60,7 +60,7 @@ export function ProductsPage() {
   const handleAdd = useCallback(
     (data: ProductFormData): void => {
       addProduct(data)
-      toast.success("Товар добавлен")
+      toast.success(`Товар ${data.title} успешно добавлен!`)
       modals.closeAddModal()
     },
     [addProduct, modals]
@@ -81,7 +81,7 @@ export function ProductsPage() {
               sku: data.sku || product.sku
             }
             updateProduct(updatedProduct)
-            toast.success("Товар обновлён")
+            toast.success(`Товар ${data.title} успешно обновлён!`)
             modals.closeEditModal()
           }
         )
@@ -93,45 +93,60 @@ export function ProductsPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="mx-auto max-w-7xl">
-        <ProductsHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-        <div className="rounded-lg bg-white p-6 shadow-sm">
-          {error && (
-            <div className="mb-4 rounded-lg bg-red-50 p-4 text-red-800">
-              <p className="mb-2">Не удалось загрузить товары. Попробуйте ещё раз.</p>
-              <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
-                Повторить
-              </Button>
-            </div>
-          )}
+        <header>
+          <ProductsHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        </header>
 
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-700">Все позиции</h2>
-            <AddProductButton onClick={modals.openAddModal} />
+        <main>
+          <div className="rounded-lg bg-white p-6 shadow-sm">
+            {error && (
+              <div
+                className="mb-4 rounded-lg bg-red-50 p-4 text-red-800"
+                role="alert"
+                aria-live="assertive"
+              >
+                <p className="mb-2">Не удалось загрузить товары. Попробуйте ещё раз.</p>
+                <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
+                  Повторить
+                </Button>
+              </div>
+            )}
+
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-700">Все позиции</h2>
+              <AddProductButton onClick={modals.openAddModal} />
+            </div>
+
+            {isLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (
+              <ProductsTable
+                data={products}
+                {...(sortBy ? { sortBy } : {})}
+                {...(sortOrder ? { sortOrder } : {})}
+                onSort={handleSort}
+                onEdit={modals.openEditModal}
+              />
+            )}
+
+            {total > 0 && (
+              <Pagination
+                currentPage={page}
+                totalPages={Math.ceil(total / LIMIT)}
+                total={total}
+                skip={skip}
+                limit={LIMIT}
+                onPageChange={(newPageNumber) =>
+                  navigate({ search: { ...search, page: newPageNumber } })
+                }
+              />
+            )}
           </div>
-
-          {isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : (
-            <ProductsTable data={products} onSort={handleSort} onEdit={modals.openEditModal} />
-          )}
-
-          {total > 0 && (
-            <Pagination
-              currentPage={page}
-              totalPages={Math.ceil(total / LIMIT)}
-              total={total}
-              skip={skip}
-              limit={LIMIT}
-              onPageChange={(newPageNumber) =>
-                navigate({ search: { ...search, page: newPageNumber } })
-              }
-            />
-          )}
-        </div>
+        </main>
 
         <ProductModals
           isAddModalOpen={modals.isAddModalOpen}

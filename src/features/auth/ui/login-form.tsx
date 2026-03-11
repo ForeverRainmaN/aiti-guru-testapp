@@ -42,22 +42,28 @@ export function LoginForm() {
   })
 
   return (
-    <Card className="border-gray-border mx-auto flex w-full max-w-md flex-col gap-8 rounded-3xl border bg-gradient-to-b from-black/5 to-transparent p-8 shadow-lg">
-      <div className="flex justify-center">
-        <Logo />
-      </div>
+    <main className="flex h-10 min-h-screen items-center justify-center p-4">
+      <section aria-labelledby="login-title" className="w-full max-w-md">
+        <Card className="border-gray-border flex w-full flex-col gap-8 rounded-3xl border bg-linear-to-b from-black/5 to-transparent p-8 shadow-lg">
+          <div className="flex justify-center">
+            <Logo />
+          </div>
 
-      <div className="text-center">
-        <h1 className="text-4xl font-semibold tracking-tight text-gray-900">Добро пожаловать!</h1>
-        <p className="text-gray-soft mt-2 text-lg">Пожалуйста, авторизируйтесь</p>
-      </div>
+          <div className="text-center">
+            <h1 id="login-title" className="text-4xl font-semibold tracking-tight text-gray-900">
+              Добро пожаловать!
+            </h1>
+            <p className="text-gray-soft mt-2 text-lg">Пожалуйста, авторизируйтесь</p>
+          </div>
 
-      <LoginFormFields
-        form={form}
-        mutation={mutation}
-        showPassword={showPassword}
-        setShowPassword={setShowPassword}
-      />
-    </Card>
+          <LoginFormFields
+            form={form}
+            mutation={mutation}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+          />
+        </Card>
+      </section>
+    </main>
   )
 }

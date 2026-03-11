@@ -25,13 +25,13 @@ export const ProductsResponseSchema = z.object({
 export const ProductFormSchema = z.object({
   title: z.string().min(1, "Название обязательно"),
   price: z
-    .number()
-    .positive("Цена должна быть положительной")
-    .min(0.01, "Цена не может быть нулевой"),
+    .number({
+      message: "Введите число"
+    })
+    .positive("Цена должна быть положительной"),
   brand: z.string().optional(),
   sku: z.string().optional()
 })
-
 export type Product = z.infer<typeof ProductSchema>
 export type ProductFormData = z.infer<typeof ProductFormSchema>
 export type ProductsResponse = z.infer<typeof ProductsResponseSchema>
