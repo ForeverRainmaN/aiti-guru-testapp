@@ -140,6 +140,7 @@ export function ProductsTable({ data, onSort, onEdit }: ProductsTableProps) {
     [onSort, onEdit]
   )
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
