@@ -32,7 +32,7 @@ export default defineConfig(
           default: "disallow",
           rules: [
             { from: ["pages"], allow: ["app", "pages", "features", "shared"] },
-            { from: ["features"], allow: ["features", "shared"] },
+            { from: ["features"], allow: ["shared"] },
             { from: ["shared"], allow: ["shared"] }
           ]
         }
